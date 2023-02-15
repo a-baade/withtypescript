@@ -1,43 +1,50 @@
-import {Bosses, Datum} from "../../../types";
-import imageLoader from "../../../imageLoader";
-import Image from "next/image";
 
-async function getStaticPaths(id: string) {
-    const res = await fetch(`https://eldenring.fanapis.com/api/bosses/${id}`);
+
+import Image from "next/image";
+import imageLoader from "../../../imageLoader";
+import {Bosses, Datum} from "../../../types";
+
+function BossPage({ boss }: { boss: Datum }) {
+    console.log("Promise:", boss.data.name)
+    return (
+        <div key={boss.data.id}>
+            <h1>{boss.data.name}</h1>
+
+            <Image
+                loader={imageLoader}
+                unoptimized
+                src={boss.data.image || "{}"}
+                alt={boss.data.name}
+                width="200"
+                height="200"
+            />
+        </div>
+    );
+}
+
+export async function getStaticPaths() {
+    const res = await fetch("https://eldenring.fanapis.com/api/bosses");
     const { data }: Bosses = await res.json();
 
     return {
-        paths: data.map((data) => {
-            return {params: {id: String(data.id) } };
-        }), fallback: false
-    }
+        paths: data.map((boss) => {
+            return { params: { id: String(boss.id) } };
+        }),
+        fallback: false,
+    };
 }
 
-export async function getStaticProps({params}:{ params: { id: string} }) {
-    const res = await fetch(`https://eldenring.fanapis.com/api/bosses/${params.id}`
+export async function getStaticProps({ params }: { params: { id: string } }) {
+    const res = await fetch(
+        `https://eldenring.fanapis.com/api/bosses/${params.id}`
     );
-    const boss = await res.json()
+    const boss = await res.json();
+
     return {
         props: {
-            boss
-        }
-    }
+            boss,
+        },
+    };
 }
 
-function BossesPage({ boss }: {
-    boss: Datum
-}) {
-    return <div>
-        <h1>{boss.name}</h1>
-        <Image
-            loader={imageLoader}
-            unoptimized
-            src={boss.image || "{}"}
-            alt={boss.name}
-            width={"200"}
-            height={"200"}
-        />
-    </div>
-}
-
-export default BossesPage
+export default BossPage;

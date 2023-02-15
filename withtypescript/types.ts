@@ -18,6 +18,7 @@ export interface Bosses {
 }
 
 export interface Datum {
+    data: any;
     id:           string;
     name:         string;
     image:        null | string;
